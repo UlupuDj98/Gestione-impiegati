@@ -1,0 +1,10 @@
+# Usa l'immagine ufficiale di MySQL come base
+FROM mysql:latest
+
+# Imposta le variabili d'ambiente
+ENV MYSQL_ROOT_PASSWORD=root
+ENV MYSQL_PASSWORD=mypassword
+ENV MYSQL_DATABASE=employeesdb_docker
+
+# Espone la porta 3306
+EXPOSE 3306
