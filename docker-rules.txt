@@ -1,0 +1,67 @@
+Comandi utilizzati per dockerizzare un applicazione springboot con mysql con il frontend implementato in REACTjs
+
+#creazione della network
+docker network create net-employees
+
+docker run -d -p 3308:3306 --name mysql-docker --network=net-employees --env=MYSQL_ROOT_PASSWORD=root  --env=MYSQL_PASSWORD=mypassword --env="MYSQL_DATABASE=employeesdb_docker" mysql 
+#dall immagine mysql avviamo per primo questo container
+
+docker container ls
+#vediamo i container
+
+docker exec -it mysql-docker bash
+#entriamo nella shell del container mysql
+
+ls
+#vediamo il suo interno
+
+mysql -uroot -proot
+#logghiamo
+
+SHOW DATABASES;
+#da scrivere esattamente cosi
+#vediamo i db presenti
+
+#creare il Dockerfile per il backend
+
+FROM openjdk:17-jdk-alpine
+ADD target/Employees-project-0.0.1-SNAPSHOT.jar app.jar
+ENTRYPOINT ["java","-jar","/app.jar"]
+
+#vicino target il nome dell applicazione springboot (artifact)
+#diamo la versione di jdk , creiamo il jar che ci servira per eseguirlo
+
+#percorso src/main/java/resources
+andare nell application.properties
+
+mettere user e password del db del container
+#root root
+al posto di localhost il nome del container
+#mysql-docker
+al posto del db il db del container
+#employeesdb_docker
+
+#nella cartella principale del backend
+mvn clean install -DskipTests
+#viene cosi creato il file .jar
+#con il build pulisce dalle installazioni precedenti con DskipTests salta i test e genera direttamente il jar
+
+docker build -t employee-backend .
+#crea un immagine docker , il -t gli da un nome , il . e la dir corrente (grazie al dockerfile)
+
+docker run -d --name=backend --network=net-employees -p 8080:8080 employee-backend
+#run del container backend
+
+
+#passiamo al frontend
+
+#nella directory
+npm run build
+
+docker build -t employee-frontend .
+#buildiamo l immagine grazie al Dockerfile messo a disposizione della directory del frontend
+
+docker run -d --name=frontend -p 81:80 --network=net-employees employee-frontend
+#runnato il container
+
+Abbiamo cosi avviato i tre container 
